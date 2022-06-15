@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contracts;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ContractsController extends Controller
 {
@@ -14,7 +15,15 @@ class ContractsController extends Controller
      */
     public function index()
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $response->setData( Contracts::all() );
+        }catch (\Exception $exception)
+        {
+            $response->setStatusCode(500);
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 
     /**
@@ -35,7 +44,24 @@ class ContractsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $response = new JsonResponse();
+
+        try {
+            $contract = new Contracts();
+            $contract->name = $request->name;
+            $contract->date = $request->date;
+            $contract->file = $request->file;
+            $contract->employees_id = $request->employee_id;
+            $contract->save();
+            $response->setStatusCode(200);
+            $response->setData($contract);
+        }catch (\Exception $exception)
+        {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+
+        return $response;
     }
 
     /**
@@ -44,9 +70,23 @@ class ContractsController extends Controller
      * @param  \App\Models\Contracts  $contracts
      * @return \Illuminate\Http\Response
      */
-    public function show(Contracts $contracts)
+    public function show(Contracts $contracts, int $id)
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $contracts =  Contracts::find($id);
+            if (!empty($contracts))
+            {
+                $contracts->employees = $contracts->employee();
+            }
+            $response->setData($contracts);
+
+        }catch (\Exception $exception)
+        {
+            $response->setStatusCode(500);
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 
     /**

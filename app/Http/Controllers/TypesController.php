@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Types;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TypesController extends Controller
 {
@@ -14,7 +15,14 @@ class TypesController extends Controller
      */
     public function index()
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $response->setData(Types::all());
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 
     /**
@@ -30,29 +38,51 @@ class TypesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        $response = new JsonResponse();
+
+        try {
+            $type = new Types;
+            $type->name = $request->name;
+            $type->save();
+            $response->setStatusCode(200);
+            $response->setData($type);
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+
+        return $response;
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Types  $types
+     * @param \App\Models\Types $types
      * @return \Illuminate\Http\Response
      */
-    public function show(Types $types)
+    public function show(Types $types, int $id)
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $type = Types::find($id);
+            $response->setData($type);
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode(500);
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Types  $types
+     * @param \App\Models\Types $types
      * @return \Illuminate\Http\Response
      */
     public function edit(Types $types)
@@ -63,8 +93,8 @@ class TypesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Types  $types
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Types $types
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Types $types)
@@ -75,7 +105,7 @@ class TypesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Types  $types
+     * @param \App\Models\Types $types
      * @return \Illuminate\Http\Response
      */
     public function destroy(Types $types)

@@ -19,3 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('types', 'TypesController');
+Route::resource('employees', 'EmployeesController');
+Route::resource('contracts', 'ContractsController');
+Route::resource('childrens', 'ChildrensController');
