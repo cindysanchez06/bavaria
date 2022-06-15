@@ -16,6 +16,11 @@ class CreateEmployeesTable extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('name', 45);
+            $table->integer('phone');
+            $table->string('address', 45);
+            $table->bigInteger('types_id');
+            $table->foreign('types_id')->references('id')->on('types')->onDelete('cascade');
         });
     }
 
@@ -26,6 +31,11 @@ class CreateEmployeesTable extends Migration
      */
     public function down()
     {
+        Schema::table('employees', function(Blueprint $table)
+        {
+            $table->dropForeign('types_id');
+            $table->dropColumn('types_id');
+        });
         Schema::dropIfExists('employees');
     }
 }

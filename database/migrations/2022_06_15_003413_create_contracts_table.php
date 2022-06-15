@@ -15,6 +15,11 @@ class CreateContractsTable extends Migration
     {
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 45);
+            $table->date('date');
+            $table->string('file', 45);
+            $table->bigInteger('employees_id');
+            $table->foreign('employees_id')->references('id')->on('employees')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +31,11 @@ class CreateContractsTable extends Migration
      */
     public function down()
     {
+        Schema::table('contracts', function(Blueprint $table)
+        {
+            $table->dropForeign('employees_id');
+            $table->dropColumn('employees_id');
+        });
         Schema::dropIfExists('contracts');
     }
 }

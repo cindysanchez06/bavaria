@@ -15,6 +15,10 @@ class CreateChildrensTable extends Migration
     {
         Schema::create('childrens', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 45);
+            $table->integer('age');
+            $table->bigInteger('employees_id');
+            $table->foreign('employees_id')->references('id')->on('employees')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +30,11 @@ class CreateChildrensTable extends Migration
      */
     public function down()
     {
+        Schema::table('childrens', function(Blueprint $table)
+        {
+            $table->dropForeign('employees_id');
+            $table->dropColumn('employees_id');
+        });
         Schema::dropIfExists('childrens');
     }
 }
