@@ -20,7 +20,7 @@ class EmployeesController extends Controller
         try {
             $response->setData(Employees::all());
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -93,7 +93,7 @@ class EmployeesController extends Controller
             $response->setData($type);
 
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -117,9 +117,37 @@ class EmployeesController extends Controller
      * @param \App\Models\Employees $employees
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employees $employees)
+    public function update(Request $request, Employees $employees, $id)
     {
-        //
+        $response = new JsonResponse();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:45',
+            'phone' => 'required|integer|max:99999',
+            'address' => 'required|max:45',
+            'types_id' => 'required|max:99999',
+        ])->errors();
+        if ($validator->messages()) {
+            $response->setData($validator->messages());
+            return $response;
+        }
+        try {
+            $employee = Employees::find($id);
+            if ($employee) {
+                $employee->name = $request->name;
+                $employee->phone = $request->phone;
+                $employee->address = $request->address;
+                $employee->types_id = $request->types_id;
+                $employee->save();
+                $response->setData('Employee edited');
+            }
+            else{
+                $response->setData('Employee not found');
+            }
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 
     /**
@@ -128,8 +156,22 @@ class EmployeesController extends Controller
      * @param \App\Models\Employees $employees
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Employees $employees)
+    public function destroy(Employees $employees, $id)
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $employee = Employees::find($id);
+            if ($employee) {
+                $employee->delete();
+                $response->setData('Employee deleted');
+            } else {
+                $response->setData('Employee Not found');
+            }
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 }

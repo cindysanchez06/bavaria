@@ -20,7 +20,7 @@ class ContractsController extends Controller
         try {
             $response->setData(Contracts::all());
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -90,7 +90,7 @@ class ContractsController extends Controller
             $response->setData($contracts);
 
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -114,9 +114,39 @@ class ContractsController extends Controller
      * @param \App\Models\Contracts $contracts
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Contracts $contracts)
+    public function update(Request $request, Contracts $contracts, $id)
     {
-        //
+        $response = new JsonResponse();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:45',
+            'date' => 'required|date',
+            'file' => 'required|max:45',
+            'employees_id' => 'required|max:99999',
+        ])->errors();
+
+        if ($validator->messages()) {
+            $response->setData($validator->messages());
+            return $response;
+        }
+        try {
+            $contract = Contracts::find($id);
+            if ($contract) {
+                $contract->name = $request->name;
+                $contract->date = $request->date;
+                $contract->file = $request->file;
+                $contract->employees_id = $request->employees_id;
+                $contract->save();
+                $response->setStatusCode(200);
+                $response->setData('Contract Edited');
+            } else {
+                $response->setData('Contract not found');
+            }
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+
+        return $response;
     }
 
     /**
@@ -125,8 +155,22 @@ class ContractsController extends Controller
      * @param \App\Models\Contracts $contracts
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Contracts $contracts)
+    public function destroy(Contracts $contracts, $id)
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $contract = Contracts::find($id);
+            if ($contract) {
+                $contract->delete();
+                $response->setData('Contracts deleted');
+            } else {
+                $response->setData('Contract Not found');
+            }
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 }

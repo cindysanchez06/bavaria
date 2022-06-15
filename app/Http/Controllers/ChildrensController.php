@@ -20,7 +20,7 @@ class ChildrensController extends Controller
         try {
             $response->setData(Childrens::all());
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -88,7 +88,7 @@ class ChildrensController extends Controller
             $response->setData($children);
 
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -112,9 +112,40 @@ class ChildrensController extends Controller
      * @param \App\Models\Childrens $childrens
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Childrens $childrens)
+    public function update(Request $request, Childrens $childrens, $id)
     {
-        //
+        $response = new JsonResponse();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:45',
+            'age' => 'required|integer|max:200',
+            'employees_id' => 'required|max:99999',
+        ])->errors();
+
+        if ($validator->messages()) {
+            $response->setData($validator->messages());
+            return $response;
+        }
+        try {
+            $children = Childrens::find($id);
+            if ($children)
+            {
+                $children->name = $request->name;
+                $children->age = $request->age;
+                $children->employees_id = $request->employees_id;
+                $children->save();
+                $response->setStatusCode(200);
+                $response->setData('Children edited');
+            }
+            else{
+                $response->setData('Children not found');
+            }
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+
+        return $response;
     }
 
     /**
@@ -123,8 +154,22 @@ class ChildrensController extends Controller
      * @param \App\Models\Childrens $childrens
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Childrens $childrens)
+    public function destroy(Childrens $childrens, $id)
     {
-        //
+        $response = new JsonResponse();
+        try {
+            $children = Childrens::find($id);
+            if ($children) {
+                $children->delete();
+                $response->setData('Children deleted');
+            }else{
+                $response->setData('Children Not found');
+            }
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 }

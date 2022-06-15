@@ -10,4 +10,6 @@ class Types extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+
+
 }

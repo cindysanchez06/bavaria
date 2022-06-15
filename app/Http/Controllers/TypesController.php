@@ -81,7 +81,7 @@ class TypesController extends Controller
             $response->setData($type);
 
         } catch (\Exception $exception) {
-            $response->setStatusCode(500);
+            $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
         return $response;
@@ -105,9 +105,32 @@ class TypesController extends Controller
      * @param \App\Models\Types $types
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Types $types)
+    public function update(Request $request, Types $types, $id)
     {
-        //
+        $response = new JsonResponse();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:45',
+        ])->errors();
+        if ($validator->messages()) {
+            $response->setData($validator->messages());
+            return $response;
+        }
+        try {
+            $type = Types::find($id);
+            if ($type) {
+                $type->name = $request->name;
+                $type->save();
+                $response->setData('Type edited');
+            } else {
+                $response->setData('Type not found');
+            }
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
+
     }
 
     /**
@@ -116,8 +139,23 @@ class TypesController extends Controller
      * @param \App\Models\Types $types
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Types $types)
+    public function destroy(Types $types, $id)
     {
-        //
+        $response = new JsonResponse();
+
+        try {
+            $type = Types::find($id);
+            if ($type) {
+                $type->delete();
+                $response->setData('Type deleted');
+            } else {
+                $response->setData('Type Not found');
+            }
+
+        } catch (\Exception $exception) {
+            $response->setStatusCode($exception->getCode());
+            $response->setData($exception->getMessage());
+        }
+        return $response;
     }
 }
