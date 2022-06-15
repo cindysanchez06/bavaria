@@ -40,8 +40,10 @@
 ![image](https://user-images.githubusercontent.com/28909805/173760312-e6ebef80-1947-4dee-84b5-53c16cd7b212.png)
 
 
+## Coleccion Postman
+[test-bavaria.postman_collection.zip](https://github.com/cindysanchez06/bavaria/files/8906552/test-bavaria.postman_collection.zip)
+
 
 By Cindy Sanchez
-
 
 
