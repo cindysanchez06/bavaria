@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Childrens;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ChildrensController extends Controller
@@ -44,7 +45,16 @@ class ChildrensController extends Controller
     public function store(Request $request)
     {
         $response = new JsonResponse();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:45',
+            'age' => 'required|integer|max:200',
+            'employees_id' => 'required|max:99999',
+        ])->errors();
 
+        if ($validator->messages()) {
+            $response->setData($validator->messages());
+            return $response;
+        }
         try {
             $children = new Childrens();
             $children->name = $request->name;
@@ -53,8 +63,7 @@ class ChildrensController extends Controller
             $children->save();
             $response->setStatusCode(200);
             $response->setData($children);
-        }catch (\Exception $exception)
-        {
+        } catch (\Exception $exception) {
             $response->setStatusCode($exception->getCode());
             $response->setData($exception->getMessage());
         }
@@ -73,8 +82,7 @@ class ChildrensController extends Controller
         $response = new JsonResponse();
         try {
             $children = Childrens::find($id);
-            if (!empty($children))
-            {
+            if (!empty($children)) {
                 $children->employee = $children->employee();
             }
             $response->setData($children);

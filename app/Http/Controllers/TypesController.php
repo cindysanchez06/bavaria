@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Types;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TypesController extends Controller
@@ -45,6 +46,13 @@ class TypesController extends Controller
     {
         $response = new JsonResponse();
 
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:45',
+        ])->errors();
+        if ($validator->messages()) {
+            $response->setData($validator->messages());
+            return $response;
+        }
         try {
             $type = new Types;
             $type->name = $request->name;
